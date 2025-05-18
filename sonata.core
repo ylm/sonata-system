@@ -67,9 +67,11 @@ filesets:
       # Complicated by the differences between Sonata One and Sonata XL
       - target_synth    ? (data/pins_sonata.xdc)
       - target_synth_xl ? (data/pins_sonata_xl.xdc)
+      - target_synth_z2 ? (data/pins_sonata_z2.xdc)
       -                    data/synth_timing_common.xdc
       - target_synth    ? (data/synth_timing.xdc)
       - target_synth_xl ? (data/synth_timing_xl.xdc)
+      - target_synth_z2 ? (data/synth_timing_z2.xdc)
       -                    data/impl_timing.xdc
     file_type: xdc
 
@@ -110,6 +112,11 @@ parameters:
     paramtype: vlogdefine
     description: Targeting the Sonata XL board rather than the Sonata One board.
 
+  TARGET_Z2_BOARD:
+    datatype: bool
+    paramtype: vlogdefine
+    description: Targeting the PYNQ-Z2 board rather than the Sonata One board.
+
 targets:
   default: &default_target
     filesets:
@@ -145,6 +152,22 @@ targets:
       - SRAMInitFile
       - PRIM_DEFAULT_IMPL=prim_pkg::ImplXilinx
       - TARGET_XL_BOARD=true
+
+  synth_z2:
+    <<: *default_target
+    default_tool: vivado
+    filesets_append:
+      - files_sonata
+      - files_constraints_sonata
+      - files_tcl
+    toplevel: top_sonata
+    tools:
+      vivado:
+        part: "xc7z020clg400-1" # zynq-7020
+    parameters:
+      - SRAMInitFile
+      - PRIM_DEFAULT_IMPL=prim_pkg::ImplXilinx
+      - TARGET_Z2_BOARD=true
 
   sim:
     <<: *default_target
