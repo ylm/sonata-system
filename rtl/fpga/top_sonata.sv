@@ -20,6 +20,9 @@ module top_sonata
   input  logic [7:0] usrSw,
   input  logic [2:0] selSw,
 
+`ifdef TTARGET_Z2_BOARD
+  // No LCD nor Ethernet MAC on PYNQ-Z2
+`else
   output logic       lcd_rst,
   output logic       lcd_dc,
   inout  logic       lcd_copi,
@@ -33,6 +36,7 @@ module top_sonata
   input  logic       ethmac_cipo,
   input  logic       ethmac_intr,
   output logic       ethmac_cs,
+`endif
 
   output logic       rgbled0,
 `ifdef TARGET_XL_BOARD
@@ -200,13 +204,17 @@ module top_sonata
 `ifdef TARGET_XL_BOARD
   // No HyperRAM on Sonata XL
 `else
+`ifdef TARGET_Z2_BOARD
+  // No HyperRAM on PYNQ-Z2
+`else
   inout  wire [7:0]  hyperram_dq,
   inout  wire        hyperram_rwds,
   output wire        hyperram_ckp,
   output wire        hyperram_ckn,
   output wire        hyperram_nrst,
   output wire        hyperram_cs
-`endif
+`endif //TARGET_Z2_BOARD
+`endif //TARGET_XL_BOARD
 
 `ifdef TARGET_XL_BOARD
   // Sonata XL-only expansion headers
@@ -414,6 +422,8 @@ module top_sonata
   // under software control so some boards are not supported.
   assign mb0 = 1'b1;
 
+`ifdef TARGET_Z2_BOARD
+`else
   // Produce 50 MHz system clock from 25 MHz Sonata board clock.
   clkgen_sonata #(
     .SysClkFreq      ( SysClkFreq      ),
@@ -428,6 +438,7 @@ module top_sonata
     .clk_hr3x,
     .locked    (pll_locked)
   );
+`endif
 
   // Produce reset signal at beginning of time and when button pressed.
   assign rst_btn = ~nrst;
